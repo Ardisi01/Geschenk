@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meine Webseite</title>
+    <title>Valentine's Frage</title>
     <style>
         body {
             background: url('rose.jpg') no-repeat center center fixed;
@@ -13,22 +13,21 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            overflow: hidden;
             font-family: Arial, sans-serif;
-            transition: background-color 0.5s ease;
+            position: relative;
+            overflow: hidden;
         }
         #dynamicLink {
-            position: absolute;
-            padding: 15px 25px;
-            background-color: rgba(255, 255, 255, 0.7);
+            padding: 20px 30px;
+            background-color: rgba(255, 255, 255, 0.8);
             border-radius: 10px;
             text-decoration: none;
             font-size: 20px;
             font-weight: bold;
             color: black;
             cursor: pointer;
+            border: 2px solid black;
         }
-        /* Overlay für die Frage */
         #valentineOverlay {
             display: none;
             position: fixed;
@@ -42,13 +41,10 @@
             flex-direction: column;
             color: white;
             text-align: center;
-            transition: background-color 0.5s ease;
         }
-        #valentineOverlay h2 {
+        #valentineText {
             font-size: 32px;
             margin-bottom: 20px;
-            position: relative;
-            top: -30px;
         }
         .btn {
             padding: 10px 20px;
@@ -57,121 +53,97 @@
             cursor: pointer;
             border: none;
             border-radius: 5px;
-            position: absolute;
+            width: 120px;
+            text-align: center;
         }
         .btn-yes {
             background-color: green;
             color: white;
-            left: 45%;
-            top: 10px;
         }
         .btn-no {
             background-color: red;
             color: white;
-            left: 55%;
-            top: 10px;
+            position: relative;
         }
-        /* A mit Smiley */
-        #sadMessage {
-            display: none;
-            font-size: 50px;
-            color: white;
-            margin-top: 20px;
-        }
-        /* Riesen "I LOVE YOU!" */
-        #loveMessage {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
-            justify-content: center;
-            align-items: center;
-            font-size: 100px;
+        .love-message {
+            position: absolute;
+            font-size: 24px;
             font-weight: bold;
-            color: black;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 2px solid white;
+        }
+        .hidden {
+            display: none;
+        }
+        #loveMessage {
+            font-size: 60px;
+            font-weight: bold;
+            color: white;
         }
     </style>
 </head>
 <body>
     <a id="dynamicLink">Klicke mich Inass</a>
-
-    <!-- Overlay mit der Frage -->
     <div id="valentineOverlay">
         <h2 id="valentineText">Do you wanna be my Valentine?</h2>
-        <button class="btn btn-yes" id="yesButton" onclick="checkYes()">Yes</button>
-        <button class="btn btn-no" id="noButton" onclick="moveNoButton()">No</button>
-        <div id="sadMessage">eyyyyyyyyyyy :(</div>
+        <div style="display: flex; gap: 20px;">
+            <button class="btn btn-yes" id="yesButton" onclick="checkYes()">Yes</button>
+            <button class="btn btn-no" id="noButton" onclick="moveNoButton()">No</button>
+        </div>
     </div>
-
-    <!-- Großes "I LOVE YOU!" -->
-    <div id="loveMessage">I LOVE YOU!</div>
 
     <script>
         let clickCount = 0;
         let noClickCount = 0;
-        let loveMessage = document.getElementById("loveMessage");
-        let firstClick = true;
-
-        function setRandomPosition() {
-            const link = document.getElementById("dynamicLink");
-            const maxX = window.innerWidth - link.clientWidth;
-            const maxY = window.innerHeight - link.clientHeight;
-            const randomX = Math.random() * maxX;
-            const randomY = Math.random() * maxY;
-            
-            link.style.left = `${randomX}px`;
-            link.style.top = `${randomY}px`;
-        }
+        let loveMessageCount = 1;
 
         function handleClick() {
             clickCount++;
-
-            if (clickCount >= 6) {
-                document.getElementById("dynamicLink").style.display = "none"; // Link ausblenden
+            if (clickCount >= 5) {
+                document.getElementById("dynamicLink").style.display = "none";
                 document.getElementById("valentineOverlay").style.display = "flex";
-                document.body.style.backgroundColor = "rgba(0, 0, 0, 0.8)"; // Hintergrund abdunkeln
-            } else {
-                if (firstClick) {
-                    firstClick = false;
-                } else {
-                    setRandomPosition();
-                }
             }
         }
 
         function checkYes() {
-            if (document.getElementById("yesButton").innerText === "Yes") {
-                loveMessage.style.display = "flex";
-                document.getElementById("valentineOverlay").style.display = "none";
-            }
+            document.body.innerHTML = '<h1 id="loveMessage">I LOVE YOU!</h1>';
         }
 
         function moveNoButton() {
             noClickCount++;
-
             if (noClickCount >= 10) {
                 document.getElementById("noButton").innerText = "Yes";
                 document.getElementById("noButton").onclick = checkYes;
-                document.getElementById("yesButton").onclick = checkYes;
-            } else if (noClickCount >= 5) {
-                document.getElementById("sadMessage").style.display = "block";
+                return;
             }
-
             const noButton = document.getElementById("noButton");
             const maxX = window.innerWidth - noButton.clientWidth;
             const maxY = window.innerHeight - noButton.clientHeight;
             const randomX = Math.random() * maxX;
             const randomY = Math.random() * maxY;
-
+            noButton.style.position = "absolute";
             noButton.style.left = `${randomX}px`;
             noButton.style.top = `${randomY}px`;
+            for (let i = 0; i < 2; i++) {
+                createLoveMessage();
+            }
+        }
+
+        function createLoveMessage() {
+            const message = document.createElement("div");
+            message.className = "love-message";
+            message.innerText = "Ich liebe dich";
+            const maxX = window.innerWidth - 100;
+            const maxY = window.innerHeight - 30;
+            message.style.left = `${Math.random() * maxX}px`;
+            message.style.top = `${Math.random() * maxY}px`;
+            document.body.appendChild(message);
         }
 
         document.getElementById("dynamicLink").addEventListener("click", handleClick);
-        window.addEventListener("resize", setRandomPosition);
     </script>
 </body>
 </html>
