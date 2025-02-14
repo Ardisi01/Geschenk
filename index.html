@@ -46,6 +46,10 @@
             color: white;
             text-align: center;
         }
+        #valentineText {
+            font-size: 42px;
+            font-weight: bold;
+        }
         #question-container {
             margin-bottom: 20px;
         }
@@ -87,6 +91,19 @@
             25% { opacity: 1; }
             50% { opacity: 1; }
             100% { opacity: 0; }
+        }
+        .sparkle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background-color: gold;
+            border-radius: 50%;
+            opacity: 1;
+            animation: sparkleAnimation 1s linear;
+        }
+        @keyframes sparkleAnimation {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
         }
     </style>
 </head>
@@ -131,6 +148,7 @@
             } else {
                 document.body.innerHTML = '<h1 style="color: white; font-size: 60px; text-align: center;">I LOVE YOU!</h1>';
             }
+            createSparkleEffect();
         }
 
         function handleNoClick() {
@@ -159,8 +177,8 @@
                 document.body.appendChild(message);
 
                 setTimeout(() => { message.innerText = "Ich"; }, 500);
-                setTimeout(() => { message.innerText = "Ich Liebe"; }, 1000);
-                setTimeout(() => { message.innerText = "Ich Liebe Dich"; }, 1500);
+                setTimeout(() => { message.innerText = "Ich liebe"; }, 1000);
+                setTimeout(() => { message.innerText = "Ich liebe dich"; }, 1500);
                 setTimeout(() => { message.remove(); }, 4000);
             }
 
@@ -171,6 +189,18 @@
                     createLoveMessage();
                 }
             }, 1500);
+        }
+
+        function createSparkleEffect() {
+            for (let i = 0; i < 20; i++) {
+                const sparkle = document.createElement("div");
+                sparkle.className = "sparkle";
+                sparkle.style.left = `${50 + Math.random() * 100}px`;
+                sparkle.style.top = `${50 + Math.random() * 100}px`;
+                document.getElementById("yesButton").appendChild(sparkle);
+
+                setTimeout(() => { sparkle.remove(); }, 1000);
+            }
         }
 
         document.getElementById("dynamicLink").addEventListener("click", () => {
