@@ -27,6 +27,10 @@
             color: black;
             cursor: pointer;
             border: 2px solid black;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
         }
         #valentineOverlay {
             display: none;
@@ -42,8 +46,7 @@
             color: white;
             text-align: center;
         }
-        #valentineText {
-            font-size: 32px;
+        #question-container {
             margin-bottom: 20px;
         }
         .btn {
@@ -55,15 +58,17 @@
             border-radius: 5px;
             width: 120px;
             text-align: center;
+            position: absolute;
         }
         .btn-yes {
             background-color: green;
             color: white;
+            left: 40%;
         }
         .btn-no {
             background-color: red;
             color: white;
-            position: relative;
+            right: 40%;
         }
         .love-message {
             position: absolute;
@@ -74,76 +79,108 @@
             padding: 5px 10px;
             border-radius: 5px;
             border: 2px solid white;
+            opacity: 0;
+            animation: fadeInOut 4s infinite;
         }
-        .hidden {
-            display: none;
-        }
-        #loveMessage {
-            font-size: 60px;
-            font-weight: bold;
-            color: white;
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            25% { opacity: 1; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
         }
     </style>
 </head>
 <body>
-    <a id="dynamicLink">Klicke mich Inass</a>
+    <a id="dynamicLink">Klicke mich, Inass</a>
     <div id="valentineOverlay">
         <h2 id="valentineText">Do you wanna be my Valentine?</h2>
-        <div style="display: flex; gap: 20px;">
-            <button class="btn btn-yes" id="yesButton" onclick="checkYes()">Yes</button>
-            <button class="btn btn-no" id="noButton" onclick="moveNoButton()">No</button>
+        <div id="question-container"></div>  
+        <div>
+            <button class="btn btn-yes" id="yesButton" onclick="handleYesClick()">Yes</button>
+            <button class="btn btn-no" id="noButton" onclick="handleNoClick()">No</button>
         </div>
     </div>
 
     <script>
         let clickCount = 0;
         let noClickCount = 0;
-        let loveMessageCount = 1;
+        let yesClickCount = 0;
+        let loveLoopActive = false;
+        let yesPhrases = ["Bist du sicher?", "Willst du das wirklich?", "Überleg es dir nochmal!", "Hmm...", "Letzte Chance!"];
 
-        function handleClick() {
-            clickCount++;
-            if (clickCount >= 5) {
-                document.getElementById("dynamicLink").style.display = "none";
-                document.getElementById("valentineOverlay").style.display = "flex";
-            }
-        }
-
-        function checkYes() {
-            document.body.innerHTML = '<h1 id="loveMessage">I LOVE YOU!</h1>';
+        function moveDynamicLink() {
+            const link = document.getElementById("dynamicLink");
+            link.style.left = `${Math.random() * (window.innerWidth - link.clientWidth)}px`;
+            link.style.top = `${Math.random() * (window.innerHeight - link.clientHeight)}px`;
         }
 
         function moveNoButton() {
-            noClickCount++;
-            if (noClickCount >= 10) {
-                document.getElementById("noButton").innerText = "Yes";
-                document.getElementById("noButton").onclick = checkYes;
-                return;
-            }
             const noButton = document.getElementById("noButton");
-            const maxX = window.innerWidth - noButton.clientWidth;
-            const maxY = window.innerHeight - noButton.clientHeight;
-            const randomX = Math.random() * maxX;
-            const randomY = Math.random() * maxY;
-            noButton.style.position = "absolute";
-            noButton.style.left = `${randomX}px`;
-            noButton.style.top = `${randomY}px`;
-            for (let i = 0; i < 2; i++) {
-                createLoveMessage();
+            noButton.style.left = `${Math.random() * (window.innerWidth - noButton.clientWidth)}px`;
+            noButton.style.top = `${Math.random() * (window.innerHeight - noButton.clientHeight)}px`;
+        }
+
+        function handleYesClick() {
+            let questionContainer = document.getElementById("question-container");
+
+            if (yesClickCount < 5) {
+                let newQuestion = document.createElement("p");
+                newQuestion.textContent = yesPhrases[yesClickCount];
+                questionContainer.appendChild(newQuestion); 
+                yesClickCount++;
+            } else {
+                document.body.innerHTML = '<h1 style="color: white; font-size: 60px; text-align: center;">I LOVE YOU!</h1>';
             }
         }
 
-        function createLoveMessage() {
-            const message = document.createElement("div");
-            message.className = "love-message";
-            message.innerText = "Ich liebe dich";
-            const maxX = window.innerWidth - 100;
-            const maxY = window.innerHeight - 30;
-            message.style.left = `${Math.random() * maxX}px`;
-            message.style.top = `${Math.random() * maxY}px`;
-            document.body.appendChild(message);
+        function handleNoClick() {
+            if (!loveLoopActive) {
+                loveLoopActive = true;
+                startLoveMessageLoop();
+            }
+
+            noClickCount++;
+
+            if (noClickCount >= 10) {
+                let noButton = document.getElementById("noButton");
+                noButton.textContent = "Yes";
+                noButton.onclick = () => document.body.innerHTML = '<h1 style="color: white; font-size: 60px; text-align: center;">I LOVE YOU!</h1>';
+            } else {
+                moveNoButton();
+            }
         }
 
-        document.getElementById("dynamicLink").addEventListener("click", handleClick);
+        function startLoveMessageLoop() {
+            function createLoveMessage() {
+                const message = document.createElement("div");
+                message.className = "love-message";
+                message.style.left = `${Math.random() * (window.innerWidth - 100)}px`;
+                message.style.top = `${Math.random() * (window.innerHeight - 30)}px`;
+                document.body.appendChild(message);
+
+                setTimeout(() => { message.innerText = "Ich"; }, 500);
+                setTimeout(() => { message.innerText = "Ich Liebe"; }, 1000);
+                setTimeout(() => { message.innerText = "Ich Liebe Dich"; }, 1500);
+                setTimeout(() => { message.remove(); }, 4000);
+            }
+
+            let loveInterval = setInterval(() => {
+                if (document.body.innerHTML.includes("I LOVE YOU!")) {
+                    clearInterval(loveInterval);
+                } else {
+                    createLoveMessage();
+                }
+            }, 1500);
+        }
+
+        document.getElementById("dynamicLink").addEventListener("click", () => {
+            clickCount++;
+            moveDynamicLink();
+            if (clickCount >= 7) {
+                document.getElementById("dynamicLink").style.display = "none";
+                document.getElementById("valentineOverlay").style.display = "flex";
+            }
+        });
     </script>
 </body>
 </html>
